@@ -1,10 +1,21 @@
 "use client";
 
-import { ShoppingCart, Menu, User, Heart } from "lucide-react";
+import { ShoppingCart, Menu, User, Heart, LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { isAuthenticated, logout, getUserRole } from "@/lib/auth";
 
 export function Header() {
+  const router = useRouter();
+  const authenticated = isAuthenticated();
+  const userRole = getUserRole();
+
+  const handleLogout = () => {
+    logout();
+    router.push("/");
+  };
+
   return (
     <header className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -28,6 +39,11 @@ export function Header() {
             <Link href="/contact" className="text-sm font-medium hover:text-primary">
               Contact
             </Link>
+            {userRole === "SELLER" && (
+              <Link href="/seller/dashboard" className="text-sm font-medium hover:text-primary">
+                Seller Dashboard
+              </Link>
+            )}
           </nav>
 
           <div className="flex items-center gap-4">
@@ -40,10 +56,21 @@ export function Header() {
             <Button variant="ghost" size="icon" className="md:hidden">
               <Menu className="h-5 w-5" />
             </Button>
-            <Button variant="default" size="sm" className="hidden md:flex">
-              <User className="h-4 w-4 mr-2" />
-              Sign In
-            </Button>
+            
+            {authenticated ? (
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" size="icon" onClick={handleLogout}>
+                  <LogOut className="h-5 w-5" />
+                </Button>
+              </div>
+            ) : (
+              <Link href="/auth/login">
+                <Button variant="default" size="sm" className="hidden md:flex">
+                  <User className="h-4 w-4 mr-2" />
+                  Sign In
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
       </div>
