@@ -1,20 +1,12 @@
 "use client";
 
-import { ShoppingCart, Menu, User, Heart, LogOut } from "lucide-react";
+import { ShoppingCart, Menu, User, Heart } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { isAuthenticated, logout, getUserRole } from "@/lib/auth";
+import { signIn, signOut, useSession } from "next-auth/react";
 
 export function Header() {
-  const router = useRouter();
-  const authenticated = isAuthenticated();
-  const userRole = getUserRole();
-
-  const handleLogout = () => {
-    logout();
-    router.push("/");
-  };
+  const { data: session } = useSession();
 
   return (
     <header className="fixed w-full z-50 bg-white/80 backdrop-blur-md border-b">
@@ -39,11 +31,6 @@ export function Header() {
             <Link href="/contact" className="text-sm font-medium hover:text-primary">
               Contact
             </Link>
-            {userRole === "SELLER" && (
-              <Link href="/seller/dashboard" className="text-sm font-medium hover:text-primary">
-                Seller Dashboard
-              </Link>
-            )}
           </nav>
 
           <div className="flex items-center gap-4">
@@ -56,20 +43,26 @@ export function Header() {
             <Button variant="ghost" size="icon" className="md:hidden">
               <Menu className="h-5 w-5" />
             </Button>
-            
-            {authenticated ? (
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" size="icon" onClick={handleLogout}>
-                  <LogOut className="h-5 w-5" />
-                </Button>
-              </div>
+            {session ? (
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="hidden md:flex"
+                onClick={() => signOut()}
+              >
+                <User className="h-4 w-4 mr-2" />
+                Sign Out
+              </Button>
             ) : (
-              <Link href="/auth/login">
-                <Button variant="default" size="sm" className="hidden md:flex">
-                  <User className="h-4 w-4 mr-2" />
-                  Sign In
-                </Button>
-              </Link>
+              <Button 
+                variant="default" 
+                size="sm" 
+                className="hidden md:flex"
+                onClick={() => signIn("keycloak")}
+              >
+                <User className="h-4 w-4 mr-2" />
+                Sign In
+              </Button>
             )}
           </div>
         </div>
